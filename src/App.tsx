@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +7,7 @@ import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
 import { AuthPage } from "@/components/auth/AuthPage";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Dashboard } from "@/components/dashboard/Dashboard";
+import { AgencyDashboard } from "@/components/agency/AgencyDashboard";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +30,7 @@ const AppContent = () => {
     <DashboardLayout>
       <Routes>
         <Route path="/" element={<Dashboard />} />
+        <Route path="/agency" element={<AgencyDashboard />} />
       </Routes>
     </DashboardLayout>
   );
