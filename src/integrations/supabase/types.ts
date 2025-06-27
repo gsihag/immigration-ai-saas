@@ -9,16 +9,334 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      agencies: {
+        Row: {
+          address: Json | null
+          created_at: string | null
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          address?: Json | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: Json | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      cases: {
+        Row: {
+          agency_id: string
+          assigned_to: string | null
+          case_number: string
+          case_type: Database["public"]["Enums"]["case_type"]
+          client_id: string
+          created_at: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: number | null
+          status: Database["public"]["Enums"]["case_status"] | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          agency_id: string
+          assigned_to?: string | null
+          case_number: string
+          case_type: Database["public"]["Enums"]["case_type"]
+          client_id: string
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: number | null
+          status?: Database["public"]["Enums"]["case_status"] | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          agency_id?: string
+          assigned_to?: string | null
+          case_number?: string
+          case_type?: Database["public"]["Enums"]["case_type"]
+          client_id?: string
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: number | null
+          status?: Database["public"]["Enums"]["case_status"] | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cases_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cases_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cases_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          address: Json | null
+          agency_id: string
+          country_of_birth: string | null
+          created_at: string | null
+          date_of_birth: string | null
+          emergency_contact: Json | null
+          id: string
+          immigration_status: string | null
+          nationality: string | null
+          passport_number: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          address?: Json | null
+          agency_id: string
+          country_of_birth?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          emergency_contact?: Json | null
+          id?: string
+          immigration_status?: string | null
+          nationality?: string | null
+          passport_number?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          address?: Json | null
+          agency_id?: string
+          country_of_birth?: string | null
+          created_at?: string | null
+          date_of_birth?: string | null
+          emergency_contact?: Json | null
+          id?: string
+          immigration_status?: string | null
+          nationality?: string | null
+          passport_number?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clients_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          agency_id: string
+          case_id: string | null
+          client_id: string | null
+          created_at: string | null
+          document_type: Database["public"]["Enums"]["document_type"]
+          file_name: string
+          file_path: string
+          file_size: number | null
+          id: string
+          is_verified: boolean | null
+          mime_type: string | null
+          notes: string | null
+          updated_at: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          agency_id: string
+          case_id?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          document_type: Database["public"]["Enums"]["document_type"]
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          id?: string
+          is_verified?: boolean | null
+          mime_type?: string | null
+          notes?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          agency_id?: string
+          case_id?: string | null
+          client_id?: string | null
+          created_at?: string | null
+          document_type?: Database["public"]["Enums"]["document_type"]
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          is_verified?: boolean | null
+          mime_type?: string | null
+          notes?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          agency_id: string | null
+          created_at: string | null
+          first_name: string | null
+          id: string
+          is_active: boolean | null
+          last_name: string | null
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string | null
+        }
+        Insert: {
+          agency_id?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id: string
+          is_active?: boolean | null
+          last_name?: string | null
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+        }
+        Update: {
+          agency_id?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_name?: string | null
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_case_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_user_agency_id: {
+        Args: { user_id: string }
+        Returns: string
+      }
+      get_user_role: {
+        Args: { user_id: string }
+        Returns: Database["public"]["Enums"]["user_role"]
+      }
     }
     Enums: {
-      [_ in never]: never
+      case_status:
+        | "new"
+        | "in_progress"
+        | "under_review"
+        | "approved"
+        | "rejected"
+        | "completed"
+      case_type:
+        | "family_based"
+        | "employment_based"
+        | "asylum"
+        | "naturalization"
+        | "other"
+      document_type:
+        | "passport"
+        | "birth_certificate"
+        | "marriage_certificate"
+        | "diploma"
+        | "employment_letter"
+        | "financial_statement"
+        | "other"
+      user_role: "agency_admin" | "agency_staff" | "client"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +451,32 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      case_status: [
+        "new",
+        "in_progress",
+        "under_review",
+        "approved",
+        "rejected",
+        "completed",
+      ],
+      case_type: [
+        "family_based",
+        "employment_based",
+        "asylum",
+        "naturalization",
+        "other",
+      ],
+      document_type: [
+        "passport",
+        "birth_certificate",
+        "marriage_certificate",
+        "diploma",
+        "employment_letter",
+        "financial_statement",
+        "other",
+      ],
+      user_role: ["agency_admin", "agency_staff", "client"],
+    },
   },
 } as const
