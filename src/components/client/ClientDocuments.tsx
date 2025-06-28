@@ -147,24 +147,11 @@ export const ClientDocuments: React.FC = () => {
       </div>
 
       {/* Upload Component */}
-      {showUpload && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Upload New Document</CardTitle>
-            <CardDescription>
-              Select a document to upload. Supported formats: PDF, DOC, DOCX, JPG, PNG (max 10MB)
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <DocumentUpload onUploadComplete={handleUploadComplete} />
-            <div className="mt-4">
-              <Button variant="outline" onClick={() => setShowUpload(false)}>
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <DocumentUpload
+        isOpen={showUpload}
+        onClose={() => setShowUpload(false)}
+        onUploadComplete={handleUploadComplete}
+      />
 
       {/* Documents List */}
       <Card>

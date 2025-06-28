@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Building, Mail, Phone, Globe, MapPin } from 'lucide-react';
+import { Json } from '@/integrations/supabase/types';
 
 interface AddressData {
   street?: string;
@@ -63,7 +64,12 @@ export const AgencyProfile: React.FC = () => {
 
       const addressData = data.address as AddressData | null;
       
-      setAgency(data);
+      const agencyData: AgencyData = {
+        ...data,
+        address: addressData
+      };
+      
+      setAgency(agencyData);
       setFormData({
         name: data.name || '',
         email: data.email || '',
@@ -105,7 +111,7 @@ export const AgencyProfile: React.FC = () => {
           email: formData.email || null,
           phone: formData.phone || null,
           website: formData.website || null,
-          address: addressData,
+          address: addressData as Json,
           updated_at: new Date().toISOString()
         })
         .eq('id', user?.agency_id);

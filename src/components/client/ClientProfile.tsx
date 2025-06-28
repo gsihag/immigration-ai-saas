@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, User, MapPin, Phone, Heart } from 'lucide-react';
+import { Json } from '@/integrations/supabase/types';
 
 interface AddressData {
   street?: string;
@@ -83,7 +83,13 @@ export const ClientProfile: React.FC = () => {
         const addressData = data.address as AddressData | null;
         const emergencyContactData = data.emergency_contact as EmergencyContactData | null;
 
-        setClient(data);
+        const clientData: ClientData = {
+          ...data,
+          address: addressData,
+          emergency_contact: emergencyContactData
+        };
+
+        setClient(clientData);
         setFormData({
           date_of_birth: data.date_of_birth || '',
           country_of_birth: data.country_of_birth || '',
@@ -135,8 +141,8 @@ export const ClientProfile: React.FC = () => {
         nationality: formData.nationality || null,
         passport_number: formData.passport_number || null,
         immigration_status: formData.immigration_status || null,
-        address: addressData,
-        emergency_contact: emergencyContactData,
+        address: addressData as Json,
+        emergency_contact: emergencyContactData as Json,
         updated_at: new Date().toISOString()
       };
 
