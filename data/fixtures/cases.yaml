@@ -1,1 +1,217 @@
 
+# Sample immigration cases for testing
+# This file contains test data for immigration cases and applications
+
+cases:
+  - id: "case-001"
+    client_id: "client-001"
+    agency_id: "agency-001"
+    case_number: "GIS-2024-001"
+    case_type: "express_entry"
+    priority: 3
+    status: "in_progress"
+    title: "Express Entry Application - Software Engineer"
+    description: "Canadian Express Entry application for skilled worker with software engineering background"
+    created_at: "2024-01-15T10:00:00Z"
+    updated_at: "2024-01-20T14:30:00Z"
+    assigned_to: "user-staff-001"
+    estimated_completion: "2024-06-15T00:00:00Z"
+    notes: "Client has strong profile with IELTS 8.0 and Canadian work experience"
+
+  - id: "case-002"
+    client_id: "client-002"
+    agency_id: "agency-001"
+    case_number: "GIS-2024-002"
+    case_type: "family_sponsorship"
+    priority: 2
+    status: "pending_documents"
+    title: "Spouse Sponsorship Application"
+    description: "Family class sponsorship for spouse immigration"
+    created_at: "2024-01-20T09:30:00Z"
+    updated_at: "2024-01-25T16:45:00Z"
+    assigned_to: "user-staff-002"
+    estimated_completion: "2024-08-20T00:00:00Z"
+    notes: "Waiting for marriage certificate translation and medical exam results"
+
+  - id: "case-003"
+    client_id: "client-003"
+    agency_id: "agency-002"
+    case_number: "PIL-2024-001"
+    case_type: "work_permit"
+    priority: 4
+    status: "submitted"
+    title: "LMIA-Based Work Permit"
+    description: "Work permit application based on Labour Market Impact Assessment"
+    created_at: "2024-02-01T11:00:00Z"
+    updated_at: "2024-02-10T13:20:00Z"
+    assigned_to: "user-staff-003"
+    estimated_completion: "2024-04-01T00:00:00Z"
+    notes: "LMIA approved, application submitted to IRCC"
+
+  - id: "case-004"
+    client_id: "client-001"
+    agency_id: "agency-001"
+    case_number: "GIS-2024-003"
+    case_type: "study_permit"
+    priority: 1
+    status: "approved"
+    title: "Study Permit Extension"
+    description: "Study permit extension for continued education"
+    created_at: "2023-11-15T14:20:00Z"
+    updated_at: "2024-01-05T10:15:00Z"
+    assigned_to: "user-staff-001"
+    estimated_completion: "2024-01-01T00:00:00Z"
+    notes: "Application approved, new permit valid until 2025-12-31"
+
+  - id: "case-005"
+    client_id: "client-002"
+    agency_id: "agency-001"
+    case_number: "GIS-2024-004"
+    case_type: "visitor_visa"
+    priority: 5
+    status: "rejected"
+    title: "Temporary Resident Visa"
+    description: "Visitor visa application for tourism purposes"
+    created_at: "2023-12-01T09:00:00Z"
+    updated_at: "2024-01-15T11:30:00Z"
+    assigned_to: "user-staff-002"
+    notes: "Application rejected due to insufficient ties to home country. Client advised to strengthen application and reapply"
+
+# Case activities/timeline
+case_activities:
+  - id: "activity-001"
+    case_id: "case-001"
+    activity_type: "document_uploaded"
+    description: "Client uploaded passport copy"
+    created_at: "2024-01-15T10:30:00Z"
+    created_by: "client-001"
+
+  - id: "activity-002"
+    case_id: "case-001"
+    activity_type: "document_verified"
+    description: "Passport verified by staff"
+    created_at: "2024-01-16T09:15:00Z"
+    created_by: "user-staff-001"
+
+  - id: "activity-003"
+    case_id: "case-001"
+    activity_type: "status_updated"
+    description: "Case status updated to in_progress"
+    created_at: "2024-01-17T14:45:00Z"
+    created_by: "user-staff-001"
+
+  - id: "activity-004"
+    case_id: "case-001"
+    activity_type: "note_added"
+    description: "Added note about IELTS score requirement"
+    created_at: "2024-01-18T11:20:00Z"
+    created_by: "user-staff-001"
+
+  - id: "activity-005"
+    case_id: "case-002"
+    activity_type: "case_created"
+    description: "New family sponsorship case created"
+    created_at: "2024-01-20T09:30:00Z"
+    created_by: "user-admin-001"
+
+# Case types and their typical requirements
+case_types:
+  express_entry:
+    name: "Express Entry"
+    description: "Federal skilled worker program"
+    typical_documents:
+      - "passport"
+      - "ielts_results"
+      - "educational_credentials"
+      - "work_experience_letters"
+      - "police_certificates"
+      - "medical_exam"
+    estimated_processing_time: "6 months"
+    success_rate: "85%"
+
+  family_sponsorship:
+    name: "Family Sponsorship"
+    description: "Sponsorship of family members"
+    typical_documents:
+      - "passport"
+      - "birth_certificate"
+      - "marriage_certificate"
+      - "relationship_proof"
+      - "financial_support_documents"
+      - "medical_exam"
+    estimated_processing_time: "12 months"
+    success_rate: "90%"
+
+  work_permit:
+    name: "Work Permit"
+    description: "Temporary work authorization"
+    typical_documents:
+      - "passport"
+      - "lmia_document"
+      - "job_offer_letter"
+      - "educational_credentials"
+      - "medical_exam"
+    estimated_processing_time: "8 weeks"
+    success_rate: "92%"
+
+  study_permit:
+    name: "Study Permit"
+    description: "Authorization to study in Canada"
+    typical_documents:
+      - "passport"
+      - "letter_of_acceptance"
+      - "financial_proof"
+      - "statement_of_purpose"
+      - "medical_exam"
+    estimated_processing_time: "6 weeks"
+    success_rate: "88%"
+
+  visitor_visa:
+    name: "Visitor Visa"
+    description: "Temporary resident visa for tourism"
+    typical_documents:
+      - "passport"
+      - "invitation_letter"
+      - "financial_proof"
+      - "travel_itinerary"
+      - "employment_letter"
+    estimated_processing_time: "4 weeks"
+    success_rate: "75%"
+
+# Test scenarios for case management
+test_scenarios:
+  - name: "Complete Case Lifecycle"
+    description: "Test full case from creation to completion"
+    steps:
+      - "Create new case for client"
+      - "Upload required documents"
+      - "Staff review and verify documents"
+      - "Submit application to authorities"
+      - "Track status updates"
+      - "Receive decision and close case"
+
+  - name: "Case Assignment and Handoff"
+    description: "Test case assignment between staff members"
+    steps:
+      - "Admin creates case and assigns to staff member A"
+      - "Staff member A works on case and adds notes"
+      - "Admin reassigns case to staff member B"
+      - "Staff member B continues work with full context"
+      - "Case completed by staff member B"
+
+  - name: "Priority Case Management"
+    description: "Test handling of high-priority cases"
+    steps:
+      - "Create urgent case with priority 1"
+      - "Verify case appears at top of queue"
+      - "Staff processes high-priority case first"
+      - "Monitor expedited processing timeline"
+
+  - name: "Multi-Agency Case Isolation"
+    description: "Verify cases are isolated between agencies"
+    steps:
+      - "Create cases in different agencies"
+      - "Login as staff from Agency A"
+      - "Verify only Agency A cases are visible"
+      - "Attempt to access Agency B case via URL"
+      - "Confirm access is denied"

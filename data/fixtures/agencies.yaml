@@ -1,1 +1,149 @@
 
+# Sample agency data for testing and development
+# This file contains test data for immigration agencies
+
+agencies:
+  - id: "agency-001"
+    name: "Global Immigration Solutions"
+    email: "admin@globalmigration.com"
+    phone: "+1-416-555-0100"
+    website: "https://globalmigration.com"
+    address:
+      street: "100 King Street West, Suite 2500"
+      city: "Toronto"
+      state: "Ontario"
+      zipCode: "M5X 1C9"
+      country: "Canada"
+    created_at: "2023-01-15T09:00:00Z"
+    updated_at: "2024-01-15T09:00:00Z"
+
+  - id: "agency-002"
+    name: "Pacific Immigration Law Firm"
+    email: "contact@pacificimmigration.ca"
+    phone: "+1-604-555-0200"
+    website: "https://pacificimmigration.ca"
+    address:
+      street: "1055 West Georgia Street, Suite 1500"
+      city: "Vancouver"
+      state: "British Columbia"
+      zipCode: "V6E 3P3"
+      country: "Canada"
+    created_at: "2023-02-20T10:30:00Z"
+    updated_at: "2024-01-20T10:30:00Z"
+
+  - id: "agency-003"
+    name: "Maple Leaf Immigration Services"
+    email: "info@mapleleafimmigration.com"
+    phone: "+1-514-555-0300"
+    website: "https://mapleleafimmigration.com"
+    address:
+      street: "1 Place Ville Marie, Suite 3700"
+      city: "Montreal"
+      state: "Quebec"
+      zipCode: "H3B 2C1"
+      country: "Canada"
+    created_at: "2023-03-10T11:15:00Z"
+    updated_at: "2024-01-10T11:15:00Z"
+
+# Agency users for testing
+agency_users:
+  # Global Immigration Solutions users
+  - id: "user-admin-001"
+    email: "admin@globalmigration.com"
+    first_name: "Sarah"
+    last_name: "Johnson"
+    role: "agency_admin"
+    phone: "+1-416-555-0101"
+    is_active: true
+    agency_id: "agency-001"
+    created_at: "2023-01-15T09:00:00Z"
+
+  - id: "user-staff-001"
+    email: "staff1@globalmigration.com"
+    first_name: "Michael"
+    last_name: "Chen"
+    role: "agency_staff"
+    phone: "+1-416-555-0102"
+    is_active: true
+    agency_id: "agency-001"
+    created_at: "2023-01-20T10:00:00Z"
+
+  - id: "user-staff-002"
+    email: "staff2@globalmigration.com"
+    first_name: "Emily"
+    last_name: "Rodriguez"
+    role: "agency_staff"
+    phone: "+1-416-555-0103"
+    is_active: true
+    agency_id: "agency-001"
+    created_at: "2023-02-01T10:00:00Z"
+
+  # Pacific Immigration Law Firm users
+  - id: "user-admin-002"
+    email: "admin@pacificimmigration.ca"
+    first_name: "David"
+    last_name: "Kim"
+    role: "agency_admin"
+    phone: "+1-604-555-0201"
+    is_active: true
+    agency_id: "agency-002"
+    created_at: "2023-02-20T10:30:00Z"
+
+  - id: "user-staff-003"
+    email: "staff@pacificimmigration.ca"
+    first_name: "Lisa"
+    last_name: "Wong"
+    role: "agency_staff"
+    phone: "+1-604-555-0202"
+    is_active: true
+    agency_id: "agency-002"
+    created_at: "2023-03-01T09:00:00Z"
+
+  # Maple Leaf Immigration Services users
+  - id: "user-admin-003"
+    email: "admin@mapleleafimmigration.com"
+    first_name: "François"
+    last_name: "Dubois"
+    role: "agency_admin"
+    phone: "+1-514-555-0301"
+    is_active: true
+    agency_id: "agency-003"
+    created_at: "2023-03-10T11:15:00Z"
+
+# Test scenarios for agency management
+test_scenarios:
+  - name: "Agency Admin Dashboard"
+    description: "Test complete agency admin workflow"
+    steps:
+      - "Login as agency admin"
+      - "View agency dashboard with statistics"
+      - "Manage agency profile and settings"
+      - "Add new staff member"
+      - "Review client cases and documents"
+      - "Respond to client chat messages"
+
+  - name: "Multi-Agency Data Isolation"
+    description: "Verify that agencies cannot access each other's data"
+    steps:
+      - "Login as admin from Agency A"
+      - "Attempt to access Agency B client data"
+      - "Verify access is denied"
+      - "Check that only Agency A data is visible"
+
+  - name: "Staff Permission Management"
+    description: "Test role-based access control for staff"
+    steps:
+      - "Login as agency staff"
+      - "Verify limited access to admin functions"
+      - "Test client management permissions"
+      - "Test document verification capabilities"
+      - "Verify chat support functionality"
+
+  - name: "Agency Profile Management"
+    description: "Test agency information updates"
+    steps:
+      - "Login as agency admin"
+      - "Update agency contact information"
+      - "Modify address details"
+      - "Update website and phone"
+      - "Save changes and verify updates"
