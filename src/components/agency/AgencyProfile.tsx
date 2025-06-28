@@ -9,13 +9,21 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Building, Mail, Phone, Globe, MapPin } from 'lucide-react';
 
+interface AddressData {
+  street?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  country?: string;
+}
+
 interface AgencyData {
   id: string;
   name: string;
   email: string | null;
   phone: string | null;
   website: string | null;
-  address: any;
+  address: AddressData | null;
 }
 
 export const AgencyProfile: React.FC = () => {
@@ -53,17 +61,19 @@ export const AgencyProfile: React.FC = () => {
 
       if (error) throw error;
 
+      const addressData = data.address as AddressData | null;
+      
       setAgency(data);
       setFormData({
         name: data.name || '',
         email: data.email || '',
         phone: data.phone || '',
         website: data.website || '',
-        street: data.address?.street || '',
-        city: data.address?.city || '',
-        state: data.address?.state || '',
-        zipCode: data.address?.zipCode || '',
-        country: data.address?.country || ''
+        street: addressData?.street || '',
+        city: addressData?.city || '',
+        state: addressData?.state || '',
+        zipCode: addressData?.zipCode || '',
+        country: addressData?.country || ''
       });
     } catch (error) {
       console.error('Error fetching agency data:', error);
@@ -80,7 +90,7 @@ export const AgencyProfile: React.FC = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const addressData = {
+      const addressData: AddressData = {
         street: formData.street,
         city: formData.city,
         state: formData.state,
@@ -124,16 +134,17 @@ export const AgencyProfile: React.FC = () => {
   const handleCancel = () => {
     setIsEditing(false);
     if (agency) {
+      const addressData = agency.address as AddressData | null;
       setFormData({
         name: agency.name || '',
         email: agency.email || '',
         phone: agency.phone || '',
         website: agency.website || '',
-        street: agency.address?.street || '',
-        city: agency.address?.city || '',
-        state: agency.address?.state || '',
-        zipCode: agency.address?.zipCode || '',
-        country: agency.address?.country || ''
+        street: addressData?.street || '',
+        city: addressData?.city || '',
+        state: addressData?.state || '',
+        zipCode: addressData?.zipCode || '',
+        country: addressData?.country || ''
       });
     }
   };

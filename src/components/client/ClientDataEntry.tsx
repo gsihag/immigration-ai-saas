@@ -49,6 +49,11 @@ interface ClientExtendedData {
   additional_notes: string;
 }
 
+interface ClientData {
+  extended_data?: ClientExtendedData;
+  [key: string]: any;
+}
+
 export const ClientDataEntry: React.FC = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -71,8 +76,6 @@ export const ClientDataEntry: React.FC = () => {
 
   const fetchExtendedData = async () => {
     try {
-      // For now, we'll store this data in the client's notes or create a separate table
-      // Since we can't modify the migration, we'll use a JSON field approach
       const { data: clientData, error } = await supabase
         .from('clients')
         .select('*')
@@ -84,8 +87,8 @@ export const ClientDataEntry: React.FC = () => {
       }
 
       if (clientData) {
-        // Parse extended data from a JSON field or initialize empty
-        const extendedData = clientData.extended_data || {
+        // Handle the extended_data as a custom field for now
+        const extendedData = (clientData as ClientData).extended_data || {
           education_history: [],
           work_history: [],
           travel_history: [],
@@ -128,7 +131,7 @@ export const ClientDataEntry: React.FC = () => {
           .insert({
             user_id: user?.id,
             agency_id: user?.agency_id,
-            extended_data: data
+            extended_data: data as any
           });
 
         if (createError) throw createError;
@@ -137,7 +140,7 @@ export const ClientDataEntry: React.FC = () => {
         const { error: updateError } = await supabase
           .from('clients')
           .update({
-            extended_data: data,
+            extended_data: data as any,
             updated_at: new Date().toISOString()
           })
           .eq('user_id', user?.id);

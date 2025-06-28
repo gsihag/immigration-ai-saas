@@ -6,25 +6,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DocumentUpload } from '@/components/documents/DocumentUpload';
-import { Loader2, Upload, FileText, Download, Calendar, Tag } from 'lucide-react';
-import { Database } from '@/integrations/supabase/types';
-
-type DocumentType = Database['public']['Enums']['document_type'];
+import { Loader2, FileText, Download, Calendar, Plus, Eye } from 'lucide-react';
 
 interface Document {
   id: string;
-  document_type: DocumentType;
   file_name: string;
-  file_path: string;
+  document_type: string;
+  verification_status: string;
   file_size: number | null;
-  mime_type: string | null;
-  verification_status: string | null;
+  created_at: string;
   notes: string | null;
-  tags: string[] | null;
-  expiry_date: string | null;
-  created_at: string | null;
+  rejection_reason: string | null;
+  file_path: string;
 }
 
 export const ClientDocuments: React.FC = () => {
@@ -32,7 +26,7 @@ export const ClientDocuments: React.FC = () => {
   const { toast } = useToast();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
@@ -42,27 +36,23 @@ export const ClientDocuments: React.FC = () => {
 
   const fetchDocuments = async () => {
     try {
-      // First get client ID
       const { data: clientData, error: clientError } = await supabase
         .from('clients')
         .select('id')
         .eq('user_id', user?.id)
         .single();
 
-      if (clientError && clientError.code !== 'PGRST116') {
-        throw clientError;
-      }
+      if (clientError) throw clientError;
 
-      if (clientData) {
-        const { data, error } = await supabase
-          .from('documents')
-          .select('*')
-          .eq('client_id', clientData.id)
-          .order('created_at', { ascending: false });
+      const { data, error } = await supabase
+        .from('documents')
+        .select('*')
+        .eq('client_id', clientData.id)
+        .order('created_at', { ascending: false });
 
-        if (error) throw error;
-        setDocuments(data || []);
-      }
+      if (error) throw error;
+      
+      setDocuments(data || []);
     } catch (error) {
       console.error('Error fetching documents:', error);
       toast({
@@ -85,12 +75,12 @@ export const ClientDocuments: React.FC = () => {
 
       // Create download link
       const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
+      const a = window.document.createElement('a');
       a.href = url;
       a.download = document.file_name;
-      document.body.appendChild(a);
+      window.document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
+      window.document.body.removeChild(a);
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error downloading document:', error);
@@ -102,6 +92,15 @@ export const ClientDocuments: React.FC = () => {
     }
   };
 
+  const handleUploadComplete = () => {
+    setShowUpload(false);
+    fetchDocuments();
+    toast({
+      title: "Success",
+      description: "Document uploaded successfully!"
+    });
+  };
+
   const formatFileSize = (bytes: number | null) => {
     if (!bytes) return 'Unknown';
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
@@ -109,13 +108,13 @@ export const ClientDocuments: React.FC = () => {
     return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
   };
 
-  const formatDocumentType = (type: DocumentType) => {
+  const formatDocumentType = (type: string) => {
     return type.split('_').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
   };
 
-  const getStatusBadge = (status: string | null) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case 'verified':
         return <Badge variant="default" className="bg-green-100 text-green-800">Verified</Badge>;
@@ -124,21 +123,6 @@ export const ClientDocuments: React.FC = () => {
       default:
         return <Badge variant="secondary">Pending Review</Badge>;
     }
-  };
-
-  const isExpiringSoon = (expiryDate: string | null) => {
-    if (!expiryDate) return false;
-    const expiry = new Date(expiryDate);
-    const today = new Date();
-    const daysUntilExpiry = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    return daysUntilExpiry <= 30 && daysUntilExpiry > 0;
-  };
-
-  const isExpired = (expiryDate: string | null) => {
-    if (!expiryDate) return false;
-    const expiry = new Date(expiryDate);
-    const today = new Date();
-    return expiry < today;
   };
 
   if (loading) {
@@ -156,130 +140,95 @@ export const ClientDocuments: React.FC = () => {
           <h2 className="text-2xl font-bold">My Documents</h2>
           <p className="text-muted-foreground">Upload and manage your immigration documents</p>
         </div>
-        <Button onClick={() => setIsUploadDialogOpen(true)}>
-          <Upload className="mr-2 h-4 w-4" />
+        <Button onClick={() => setShowUpload(true)}>
+          <Plus className="mr-2 h-4 w-4" />
           Upload Document
         </Button>
       </div>
 
-      {/* Document Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* Upload Component */}
+      {showUpload && (
         <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold">{documents.length}</div>
-            <div className="text-sm text-muted-foreground">Total Documents</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-green-600">
-              {documents.filter(d => d.verification_status === 'verified').length}
+          <CardHeader>
+            <CardTitle>Upload New Document</CardTitle>
+            <CardDescription>
+              Select a document to upload. Supported formats: PDF, DOC, DOCX, JPG, PNG (max 10MB)
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DocumentUpload onUploadComplete={handleUploadComplete} />
+            <div className="mt-4">
+              <Button variant="outline" onClick={() => setShowUpload(false)}>
+                Cancel
+              </Button>
             </div>
-            <div className="text-sm text-muted-foreground">Verified</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-orange-600">
-              {documents.filter(d => d.verification_status === 'pending').length}
-            </div>
-            <div className="text-sm text-muted-foreground">Pending Review</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-red-600">
-              {documents.filter(d => isExpiringSoon(d.expiry_date) || isExpired(d.expiry_date)).length}
-            </div>
-            <div className="text-sm text-muted-foreground">Expiring Soon</div>
-          </CardContent>
-        </Card>
-      </div>
+      )}
 
+      {/* Documents List */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            Document Library
+            Uploaded Documents ({documents.length})
           </CardTitle>
           <CardDescription>
-            All your uploaded documents with verification status
+            View and manage your uploaded documents
           </CardDescription>
         </CardHeader>
         <CardContent>
           {documents.length === 0 ? (
             <div className="text-center p-8">
               <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground mb-2">No documents uploaded yet.</p>
-              <p className="text-sm text-muted-foreground mb-4">Upload your first document to get started.</p>
-              <Button onClick={() => setIsUploadDialogOpen(true)}>
-                <Upload className="mr-2 h-4 w-4" />
-                Upload Document
+              <h3 className="text-lg font-medium mb-2">No documents uploaded yet</h3>
+              <p className="text-muted-foreground mb-4">
+                Start by uploading your first document to begin your immigration process.
+              </p>
+              <Button onClick={() => setShowUpload(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Upload Your First Document
               </Button>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Document Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Size</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Upload Date</TableHead>
-                  <TableHead>Expiry</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {documents.map((doc) => (
-                  <TableRow key={doc.id}>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <div className="font-medium">{doc.file_name}</div>
-                        {doc.notes && (
-                          <div className="text-sm text-muted-foreground">{doc.notes}</div>
-                        )}
-                        {doc.tags && doc.tags.length > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Tag className="h-3 w-3 text-muted-foreground" />
-                            <div className="text-xs text-muted-foreground">
-                              {doc.tags.join(', ')}
-                            </div>
-                          </div>
-                        )}
+            <div className="space-y-4">
+              {documents.map((doc) => (
+                <div key={doc.id} className="border rounded-lg p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FileText className="h-5 w-5 text-muted-foreground" />
+                        <h3 className="font-medium">{doc.file_name}</h3>
+                        {getStatusBadge(doc.verification_status)}
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {formatDocumentType(doc.document_type)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{formatFileSize(doc.file_size)}</TableCell>
-                    <TableCell>
-                      {getStatusBadge(doc.verification_status)}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        {doc.created_at ? new Date(doc.created_at).toLocaleDateString() : 'Unknown'}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {doc.expiry_date ? (
-                        <div className={`text-sm ${
-                          isExpired(doc.expiry_date) ? 'text-red-600 font-medium' :
-                          isExpiringSoon(doc.expiry_date) ? 'text-orange-600 font-medium' :
-                          'text-muted-foreground'
-                        }`}>
-                          {new Date(doc.expiry_date).toLocaleDateString()}
-                          {isExpired(doc.expiry_date) && ' (Expired)'}
-                          {isExpiringSoon(doc.expiry_date) && !isExpired(doc.expiry_date) && ' (Expiring Soon)'}
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
+                        <div>
+                          <span className="font-medium">Type:</span> {formatDocumentType(doc.document_type)}
                         </div>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
+                        <div>
+                          <span className="font-medium">Size:</span> {formatFileSize(doc.file_size)}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          <span className="font-medium">Uploaded:</span> {new Date(doc.created_at).toLocaleDateString()}
+                        </div>
+                      </div>
+
+                      {doc.notes && (
+                        <div className="mt-2 p-2 bg-blue-50 rounded text-sm">
+                          <span className="font-medium">Notes:</span> {doc.notes}
+                        </div>
                       )}
-                    </TableCell>
-                    <TableCell>
+
+                      {doc.rejection_reason && (
+                        <div className="mt-2 p-2 bg-red-50 rounded text-sm text-red-700">
+                          <span className="font-medium">Rejection Reason:</span> {doc.rejection_reason}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 ml-4">
                       <Button
                         variant="outline"
                         size="sm"
@@ -287,21 +236,14 @@ export const ClientDocuments: React.FC = () => {
                       >
                         <Download className="h-4 w-4" />
                       </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>
-
-      {/* Document Upload Dialog */}
-      <DocumentUpload
-        isOpen={isUploadDialogOpen}
-        onClose={() => setIsUploadDialogOpen(false)}
-        onUploadComplete={fetchDocuments}
-      />
     </div>
   );
 };
