@@ -1,0 +1,185 @@
+# Sample client data for testing Phase 3 Client Portal
+# This file contains test data for client users and their information
+
+clients:
+  - id: "client-001"
+    user_id: "user-client-001"
+    agency_id: "agency-001"
+    date_of_birth: "1990-05-15"
+    country_of_birth: "Canada"
+    nationality: "Canadian"
+    passport_number: "CA123456789"
+    immigration_status: "Visitor"
+    address:
+      street: "123 Maple Street"
+      city: "Toronto"
+      state: "Ontario"
+      zipCode: "M5V 3A8"
+      country: "Canada"
+    emergency_contact:
+      name: "Sarah Johnson"
+      phone: "+1-416-555-0123"
+      relationship: "Sister"
+    extended_data:
+      education_history:
+        - institution: "University of Toronto"
+          degree: "Bachelor of Science"
+          field_of_study: "Computer Science"
+          start_date: "2008-09-01"
+          end_date: "2012-06-30"
+          country: "Canada"
+        - institution: "University of Waterloo"
+          degree: "Master of Science"
+          field_of_study: "Software Engineering"
+          start_date: "2012-09-01"
+          end_date: "2014-06-30"
+          country: "Canada"
+      work_history:
+        - company: "Tech Solutions Inc."
+          position: "Software Developer"
+          start_date: "2014-07-01"
+          end_date: "2018-12-31"
+          country: "Canada"
+          description: "Developed web applications using React and Node.js"
+        - company: "Innovation Labs"
+          position: "Senior Software Engineer"
+          start_date: "2019-01-01"
+          end_date: "2023-12-31"
+          country: "Canada"
+          description: "Led development team and architected scalable solutions"
+      travel_history:
+        - country: "United States"
+          purpose: "business"
+          start_date: "2020-03-15"
+          end_date: "2020-03-20"
+          notes: "Attended tech conference in San Francisco"
+        - country: "United Kingdom"
+          purpose: "tourism"
+          start_date: "2021-07-10"
+          end_date: "2021-07-25"
+          notes: "Family vacation to London and Edinburgh"
+      languages: ["English", "French", "Spanish"]
+      additional_notes: "Seeking permanent residency through Express Entry program"
+
+  - id: "client-002"
+    user_id: "user-client-002"
+    agency_id: "agency-001"
+    date_of_birth: "1985-11-22"
+    country_of_birth: "India"
+    nationality: "Indian"
+    passport_number: "IN987654321"
+    immigration_status: "Work Permit Holder"
+    address:
+      street: "456 Oak Avenue"
+      city: "Vancouver"
+      state: "British Columbia"
+      zipCode: "V6B 1A1"
+      country: "Canada"
+    emergency_contact:
+      name: "Raj Patel"
+      phone: "+91-98765-43210"
+      relationship: "Father"
+    extended_data:
+      education_history:
+        - institution: "Indian Institute of Technology"
+          degree: "Bachelor of Technology"
+          field_of_study: "Electrical Engineering"
+          start_date: "2003-07-01"
+          end_date: "2007-06-30"
+          country: "India"
+      work_history:
+        - company: "Infosys Technologies"
+          position: "Software Engineer"
+          start_date: "2007-07-01"
+          end_date: "2012-12-31"
+          country: "India"
+          description: "Developed enterprise software solutions"
+        - company: "Microsoft Canada"
+          position: "Senior Software Engineer"
+          start_date: "2013-01-01"
+          end_date: "2024-01-01"
+          country: "Canada"
+          description: "Working on cloud infrastructure and Azure services"
+      travel_history:
+        - country: "United States"
+          purpose: "business"
+          start_date: "2019-05-10"
+          end_date: "2019-05-15"
+          notes: "Microsoft conference in Seattle"
+      languages: ["English", "Hindi", "Gujarati"]
+      additional_notes: "Applying for permanent residency through Provincial Nominee Program"
+
+users:
+  - id: "user-client-001"
+    email: "alice.johnson@example.com"
+    first_name: "Alice"
+    last_name: "Johnson"
+    role: "client"
+    phone: "+1-416-555-0001"
+    is_active: true
+    agency_id: "agency-001"
+
+  - id: "user-client-002"
+    email: "priya.patel@example.com"
+    first_name: "Priya"
+    last_name: "Patel"
+    role: "client"
+    phone: "+1-604-555-0002"
+    is_active: true
+    agency_id: "agency-001"
+
+  - id: "user-client-003"
+    email: "carlos.rodriguez@example.com"
+    first_name: "Carlos"
+    last_name: "Rodriguez"
+    role: "client"
+    phone: "+1-514-555-0003"
+    is_active: true
+    agency_id: "agency-002"
+
+# Test scenarios for client portal functionality
+test_scenarios:
+  - name: "New Client Registration"
+    description: "Test the complete client signup flow"
+    steps:
+      - "Navigate to client signup page"
+      - "Fill in personal information"
+      - "Create account with email/password"
+      - "Verify account creation and automatic login"
+      - "Check that client role is assigned correctly"
+
+  - name: "Client Profile Management"
+    description: "Test client profile editing capabilities"
+    steps:
+      - "Login as existing client"
+      - "Navigate to profile section"
+      - "Edit personal information"
+      - "Update immigration details"
+      - "Save changes and verify updates"
+
+  - name: "Immigration Data Entry"
+    description: "Test comprehensive data entry forms"
+    steps:
+      - "Login as client"
+      - "Navigate to immigration info section"
+      - "Add education history entries"
+      - "Add work history entries"
+      - "Add travel history entries"
+      - "Save all information"
+
+  - name: "Document Upload"
+    description: "Test document upload functionality"
+    steps:
+      - "Login as client"
+      - "Navigate to documents section"
+      - "Upload various document types"
+      - "Verify document storage and metadata"
+      - "Test document download"
+
+  - name: "Data Isolation Testing"
+    description: "Verify clients can only access their own data"
+    steps:
+      - "Login as client A"
+      - "Attempt to access client B's data via URL manipulation"
+      - "Verify access is denied"
+      - "Check that only own data is visible"

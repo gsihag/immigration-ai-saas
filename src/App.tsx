@@ -8,6 +8,7 @@ import { AuthPage } from "@/components/auth/AuthPage";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Dashboard } from "@/components/dashboard/Dashboard";
 import { AgencyDashboard } from "@/components/agency/AgencyDashboard";
+import { ClientPortal } from "@/components/client/ClientPortal";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/agency" element={<AgencyDashboard />} />
+        <Route path="/client" element={<ClientPortal />} />
       </Routes>
     </DashboardLayout>
   );

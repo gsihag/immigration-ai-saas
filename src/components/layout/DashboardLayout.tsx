@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { LogOut, User, Building, Home } from 'lucide-react';
+import { LogOut, User, Building, Home, UserCircle } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -37,8 +37,12 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
     ).join(' ');
   };
 
+  const isDashboard = location.pathname === '/';
   const isAgencyDashboard = location.pathname === '/agency';
+  const isClientPortal = location.pathname === '/client';
+  
   const canAccessAgencyDashboard = user?.agency_id && ['agency_admin', 'agency_staff'].includes(user?.role || '');
+  const canAccessClientPortal = user?.role === 'client';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -53,7 +57,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
               {/* Navigation */}
               <nav className="flex items-center space-x-4">
                 <Button
-                  variant={!isAgencyDashboard ? "default" : "ghost"}
+                  variant={isDashboard ? "default" : "ghost"}
                   size="sm"
                   onClick={() => navigate('/')}
                   className="flex items-center space-x-2"
@@ -71,6 +75,18 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                   >
                     <Building className="h-4 w-4" />
                     <span>Agency</span>
+                  </Button>
+                )}
+
+                {canAccessClientPortal && (
+                  <Button
+                    variant={isClientPortal ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => navigate('/client')}
+                    className="flex items-center space-x-2"
+                  >
+                    <UserCircle className="h-4 w-4" />
+                    <span>Client Portal</span>
                   </Button>
                 )}
               </nav>
