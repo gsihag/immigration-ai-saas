@@ -112,6 +112,135 @@ export type Database = {
           },
         ]
       }
+      chat_conversations: {
+        Row: {
+          agency_id: string
+          client_id: string
+          created_at: string | null
+          id: string
+          status: Database["public"]["Enums"]["conversation_status"] | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          agency_id: string
+          client_id: string
+          created_at?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["conversation_status"] | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          agency_id?: string
+          client_id?: string
+          created_at?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["conversation_status"] | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_conversations_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_conversations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_faq_responses: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          question_pattern: string
+          response_text: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          question_pattern: string
+          response_text: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          question_pattern?: string
+          response_text?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          conversation_id: string
+          created_at: string | null
+          id: string
+          is_ai_response: boolean | null
+          message_text: string
+          message_type: Database["public"]["Enums"]["message_type"] | null
+          metadata: Json | null
+          sender_id: string | null
+          sender_type: Database["public"]["Enums"]["sender_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string | null
+          id?: string
+          is_ai_response?: boolean | null
+          message_text: string
+          message_type?: Database["public"]["Enums"]["message_type"] | null
+          metadata?: Json | null
+          sender_id?: string | null
+          sender_type: Database["public"]["Enums"]["sender_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string | null
+          id?: string
+          is_ai_response?: boolean | null
+          message_text?: string
+          message_type?: Database["public"]["Enums"]["message_type"] | null
+          metadata?: Json | null
+          sender_id?: string | null
+          sender_type?: Database["public"]["Enums"]["sender_type"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           address: Json | null
@@ -305,13 +434,29 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_or_create_conversation: {
+        Args: {
+          client_user_id: string
+        }
+        Returns: string
+      }
       get_user_agency_id: {
-        Args: { user_id: string }
+        Args: {
+          user_id: string
+        }
         Returns: string
       }
       get_user_role: {
-        Args: { user_id: string }
+        Args: {
+          user_id: string
+        }
         Returns: Database["public"]["Enums"]["user_role"]
+      }
+      match_faq_response: {
+        Args: {
+          question_text: string
+        }
+        Returns: string
       }
     }
     Enums: {
@@ -328,6 +473,7 @@ export type Database = {
         | "asylum"
         | "naturalization"
         | "other"
+      conversation_status: "active" | "closed" | "archived"
       document_type:
         | "passport"
         | "birth_certificate"
@@ -336,6 +482,8 @@ export type Database = {
         | "employment_letter"
         | "financial_statement"
         | "other"
+      message_type: "text" | "file" | "system"
+      sender_type: "client" | "agency_staff" | "agency_admin" | "ai_bot"
       user_role: "agency_admin" | "agency_staff" | "client"
     }
     CompositeTypes: {
@@ -467,6 +615,7 @@ export const Constants = {
         "naturalization",
         "other",
       ],
+      conversation_status: ["active", "closed", "archived"],
       document_type: [
         "passport",
         "birth_certificate",
@@ -476,6 +625,8 @@ export const Constants = {
         "financial_statement",
         "other",
       ],
+      message_type: ["text", "file", "system"],
+      sender_type: ["client", "agency_staff", "agency_admin", "ai_bot"],
       user_role: ["agency_admin", "agency_staff", "client"],
     },
   },

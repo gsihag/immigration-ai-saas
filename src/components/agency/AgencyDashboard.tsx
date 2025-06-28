@@ -5,7 +5,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { AgencyProfile } from './AgencyProfile';
 import { UserManagement } from './UserManagement';
 import { ClientManagement } from './ClientManagement';
-import { Building, Users, UserCheck } from 'lucide-react';
+import { ChatPanel } from '@/components/chat/ChatPanel';
+import { ChatContainer } from '@/components/chat/ChatContainer';
+import { Building, Users, UserCheck, MessageCircle } from 'lucide-react';
 
 export const AgencyDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -21,50 +23,69 @@ export const AgencyDashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Agency Dashboard</h1>
-        <p className="text-muted-foreground">
-          Manage your agency profile, users, and clients
-        </p>
+    <>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Agency Dashboard</h1>
+          <p className="text-muted-foreground">
+            Manage your agency profile, users, clients, and support conversations
+          </p>
+        </div>
+
+        <Tabs defaultValue="profile" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="profile" className="flex items-center gap-2">
+              <Building className="h-4 w-4" />
+              Agency Profile
+            </TabsTrigger>
+            <TabsTrigger 
+              value="users" 
+              className="flex items-center gap-2"
+              disabled={user?.role !== 'agency_admin'}
+            >
+              <UserCheck className="h-4 w-4" />
+              User Management
+            </TabsTrigger>
+            <TabsTrigger 
+              value="clients" 
+              className="flex items-center gap-2"
+              disabled={!['agency_admin', 'agency_staff'].includes(user?.role || '')}
+            >
+              <Users className="h-4 w-4" />
+              Client Management
+            </TabsTrigger>
+            <TabsTrigger 
+              value="chat" 
+              className="flex items-center gap-2"
+              disabled={!['agency_admin', 'agency_staff'].includes(user?.role || '')}
+            >
+              <MessageCircle className="h-4 w-4" />
+              Chat Support
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="profile">
+            <AgencyProfile />
+          </TabsContent>
+
+          <TabsContent value="users">
+            <UserManagement />
+          </TabsContent>
+
+          <TabsContent value="clients">
+            <ClientManagement />
+          </TabsContent>
+
+          <TabsContent value="chat">
+            <ChatPanel />
+          </TabsContent>
+        </Tabs>
       </div>
 
-      <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="profile" className="flex items-center gap-2">
-            <Building className="h-4 w-4" />
-            Agency Profile
-          </TabsTrigger>
-          <TabsTrigger 
-            value="users" 
-            className="flex items-center gap-2"
-            disabled={user?.role !== 'agency_admin'}
-          >
-            <UserCheck className="h-4 w-4" />
-            User Management
-          </TabsTrigger>
-          <TabsTrigger 
-            value="clients" 
-            className="flex items-center gap-2"
-            disabled={!['agency_admin', 'agency_staff'].includes(user?.role || '')}
-          >
-            <Users className="h-4 w-4" />
-            Client Management
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="profile">
-          <AgencyProfile />
-        </TabsContent>
-
-        <TabsContent value="users">
-          <UserManagement />
-        </TabsContent>
-
-        <TabsContent value="clients">
-          <ClientManagement />
-        </TabsContent>
-      </Tabs>
-    </div>
+      {/* Chat Widget for Agency Staff */}
+      {['agency_admin', 'agency_staff'].includes(user?.role || '') && (
+        <ChatContainer />
+      )}
+    </>
   );
 };
