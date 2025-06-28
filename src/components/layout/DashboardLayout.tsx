@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { LogOut, User, Building, Home, UserCircle } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 
 export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, signOut } = useAuth();
@@ -93,6 +94,9 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             </div>
             
             <div className="flex items-center space-x-4">
+              {/* Notification Bell */}
+              <NotificationBell />
+              
               <div className="flex items-center space-x-2">
                 <User className="h-5 w-5 text-gray-500" />
                 <span className="text-sm text-gray-700">

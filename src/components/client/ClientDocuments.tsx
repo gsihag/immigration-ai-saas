@@ -3,14 +3,11 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, Upload, FileText, Download, Eye, Calendar } from 'lucide-react';
+import { DocumentUpload } from '@/components/documents/DocumentUpload';
+import { Loader2, Upload, FileText, Download, Calendar, Tag } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 
 type DocumentType = Database['public']['Enums']['document_type'];
@@ -22,8 +19,10 @@ interface Document {
   file_path: string;
   file_size: number | null;
   mime_type: string | null;
-  is_verified: boolean | null;
+  verification_status: string | null;
   notes: string | null;
+  tags: string[] | null;
+  expiry_date: string | null;
   created_at: string | null;
 }
 
@@ -32,11 +31,7 @@ export const ClientDocuments: React.FC = () => {
   const { toast } = useToast();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [documentType, setDocumentType] = useState<DocumentType>('other');
-  const [notes, setNotes] = useState('');
 
   useEffect(() => {
     if (user?.id) {
@@ -76,97 +71,6 @@ export const ClientDocuments: React.FC = () => {
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleFileUpload = async () => {
-    if (!selectedFile) {
-      toast({
-        title: "Error",
-        description: "Please select a file to upload.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setUploading(true);
-    try {
-      // First get or create client record
-      let clientId: string;
-      const { data: existingClient, error: fetchError } = await supabase
-        .from('clients')
-        .select('id')
-        .eq('user_id', user?.id)
-        .single();
-
-      if (fetchError && fetchError.code !== 'PGRST116') {
-        throw fetchError;
-      }
-
-      if (existingClient) {
-        clientId = existingClient.id;
-      } else {
-        // Create client record if it doesn't exist
-        const { data: newClient, error: createError } = await supabase
-          .from('clients')
-          .insert({
-            user_id: user?.id,
-            agency_id: user?.agency_id
-          })
-          .select('id')
-          .single();
-
-        if (createError) throw createError;
-        clientId = newClient.id;
-      }
-
-      // Upload file to Supabase Storage
-      const fileExt = selectedFile.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `client-documents/${user?.id}/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('documents')
-        .upload(filePath, selectedFile);
-
-      if (uploadError) throw uploadError;
-
-      // Create document record
-      const { error: docError } = await supabase
-        .from('documents')
-        .insert({
-          client_id: clientId,
-          agency_id: user?.agency_id,
-          document_type: documentType,
-          file_name: selectedFile.name,
-          file_path: filePath,
-          file_size: selectedFile.size,
-          mime_type: selectedFile.type,
-          uploaded_by: user?.id,
-          notes: notes || null
-        });
-
-      if (docError) throw docError;
-
-      toast({
-        title: "Success",
-        description: "Document uploaded successfully."
-      });
-
-      setIsUploadDialogOpen(false);
-      setSelectedFile(null);
-      setDocumentType('other');
-      setNotes('');
-      fetchDocuments();
-    } catch (error) {
-      console.error('Error uploading document:', error);
-      toast({
-        title: "Error",
-        description: "Failed to upload document.",
-        variant: "destructive"
-      });
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -210,6 +114,32 @@ export const ClientDocuments: React.FC = () => {
     ).join(' ');
   };
 
+  const getStatusBadge = (status: string | null) => {
+    switch (status) {
+      case 'verified':
+        return <Badge variant="default" className="bg-green-100 text-green-800">Verified</Badge>;
+      case 'rejected':
+        return <Badge variant="destructive">Rejected</Badge>;
+      default:
+        return <Badge variant="secondary">Pending Review</Badge>;
+    }
+  };
+
+  const isExpiringSoon = (expiryDate: string | null) => {
+    if (!expiryDate) return false;
+    const expiry = new Date(expiryDate);
+    const today = new Date();
+    const daysUntilExpiry = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return daysUntilExpiry <= 30 && daysUntilExpiry > 0;
+  };
+
+  const isExpired = (expiryDate: string | null) => {
+    if (!expiryDate) return false;
+    const expiry = new Date(expiryDate);
+    const today = new Date();
+    return expiry < today;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -225,74 +155,44 @@ export const ClientDocuments: React.FC = () => {
           <h2 className="text-2xl font-bold">My Documents</h2>
           <p className="text-muted-foreground">Upload and manage your immigration documents</p>
         </div>
-        <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Upload className="mr-2 h-4 w-4" />
-              Upload Document
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Upload Document</DialogTitle>
-              <DialogDescription>
-                Upload a new document for your immigration case.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="file">Select File</Label>
-                <Input
-                  id="file"
-                  type="file"
-                  onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                />
-                <p className="text-sm text-muted-foreground">
-                  Supported formats: PDF, DOC, DOCX, JPG, PNG (Max 10MB)
-                </p>
-              </div>
+        <Button onClick={() => setIsUploadDialogOpen(true)}>
+          <Upload className="mr-2 h-4 w-4" />
+          Upload Document
+        </Button>
+      </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="document_type">Document Type</Label>
-                <Select value={documentType} onValueChange={(value: DocumentType) => setDocumentType(value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select document type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="passport">Passport</SelectItem>
-                    <SelectItem value="birth_certificate">Birth Certificate</SelectItem>
-                    <SelectItem value="marriage_certificate">Marriage Certificate</SelectItem>
-                    <SelectItem value="diploma">Diploma/Degree</SelectItem>
-                    <SelectItem value="employment_letter">Employment Letter</SelectItem>
-                    <SelectItem value="financial_statement">Financial Statement</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="notes">Notes (Optional)</Label>
-                <Input
-                  id="notes"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Add any notes about this document"
-                />
-              </div>
-
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsUploadDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleFileUpload} disabled={uploading || !selectedFile}>
-                  {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Upload
-                </Button>
-              </div>
+      {/* Document Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold">{documents.length}</div>
+            <div className="text-sm text-muted-foreground">Total Documents</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-green-600">
+              {documents.filter(d => d.verification_status === 'verified').length}
             </div>
-          </DialogContent>
-        </Dialog>
+            <div className="text-sm text-muted-foreground">Verified</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-orange-600">
+              {documents.filter(d => d.verification_status === 'pending').length}
+            </div>
+            <div className="text-sm text-muted-foreground">Pending Review</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-red-600">
+              {documents.filter(d => isExpiringSoon(d.expiry_date) || isExpired(d.expiry_date)).length}
+            </div>
+            <div className="text-sm text-muted-foreground">Expiring Soon</div>
+          </CardContent>
+        </Card>
       </div>
 
       <Card>
@@ -302,15 +202,19 @@ export const ClientDocuments: React.FC = () => {
             Document Library
           </CardTitle>
           <CardDescription>
-            All your uploaded documents
+            All your uploaded documents with verification status
           </CardDescription>
         </CardHeader>
         <CardContent>
           {documents.length === 0 ? (
             <div className="text-center p-8">
               <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No documents uploaded yet.</p>
-              <p className="text-sm text-muted-foreground">Upload your first document to get started.</p>
+              <p className="text-muted-foreground mb-2">No documents uploaded yet.</p>
+              <p className="text-sm text-muted-foreground mb-4">Upload your first document to get started.</p>
+              <Button onClick={() => setIsUploadDialogOpen(true)}>
+                <Upload className="mr-2 h-4 w-4" />
+                Upload Document
+              </Button>
             </div>
           ) : (
             <Table>
@@ -321,6 +225,7 @@ export const ClientDocuments: React.FC = () => {
                   <TableHead>Size</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Upload Date</TableHead>
+                  <TableHead>Expiry</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -328,10 +233,20 @@ export const ClientDocuments: React.FC = () => {
                 {documents.map((doc) => (
                   <TableRow key={doc.id}>
                     <TableCell>
-                      <div className="font-medium">{doc.file_name}</div>
-                      {doc.notes && (
-                        <div className="text-sm text-muted-foreground">{doc.notes}</div>
-                      )}
+                      <div className="space-y-1">
+                        <div className="font-medium">{doc.file_name}</div>
+                        {doc.notes && (
+                          <div className="text-sm text-muted-foreground">{doc.notes}</div>
+                        )}
+                        {doc.tags && doc.tags.length > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Tag className="h-3 w-3 text-muted-foreground" />
+                            <div className="text-xs text-muted-foreground">
+                              {doc.tags.join(', ')}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">
@@ -340,9 +255,7 @@ export const ClientDocuments: React.FC = () => {
                     </TableCell>
                     <TableCell>{formatFileSize(doc.file_size)}</TableCell>
                     <TableCell>
-                      <Badge variant={doc.is_verified ? 'default' : 'secondary'}>
-                        {doc.is_verified ? 'Verified' : 'Pending Review'}
-                      </Badge>
+                      {getStatusBadge(doc.verification_status)}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -351,15 +264,28 @@ export const ClientDocuments: React.FC = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDownload(doc)}
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      {doc.expiry_date ? (
+                        <div className={`text-sm ${
+                          isExpired(doc.expiry_date) ? 'text-red-600 font-medium' :
+                          isExpiringSoon(doc.expiry_date) ? 'text-orange-600 font-medium' :
+                          'text-muted-foreground'
+                        }`}>
+                          {new Date(doc.expiry_date).toLocaleDateString()}
+                          {isExpired(doc.expiry_date) && ' (Expired)'}
+                          {isExpiringSoon(doc.expiry_date) && !isExpired(doc.expiry_date) && ' (Expiring Soon)'}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDownload(doc)}
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -368,6 +294,13 @@ export const ClientDocuments: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Document Upload Dialog */}
+      <DocumentUpload
+        isOpen={isUploadDialogOpen}
+        onClose={() => setIsUploadDialogOpen(false)}
+        onUploadComplete={fetchDocuments}
+      />
     </div>
   );
 };

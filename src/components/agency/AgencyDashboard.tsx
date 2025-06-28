@@ -5,9 +5,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { AgencyProfile } from './AgencyProfile';
 import { UserManagement } from './UserManagement';
 import { ClientManagement } from './ClientManagement';
+import { DocumentManagement } from './DocumentManagement';
 import { ChatPanel } from '@/components/chat/ChatPanel';
 import { ChatContainer } from '@/components/chat/ChatContainer';
-import { Building, Users, UserCheck, MessageCircle } from 'lucide-react';
+import { Building, Users, UserCheck, MessageCircle, FileText } from 'lucide-react';
 
 export const AgencyDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -28,12 +29,12 @@ export const AgencyDashboard: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Agency Dashboard</h1>
           <p className="text-muted-foreground">
-            Manage your agency profile, users, clients, and support conversations
+            Manage your agency profile, users, clients, documents, and support conversations
           </p>
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <Building className="h-4 w-4" />
               Agency Profile
@@ -55,6 +56,14 @@ export const AgencyDashboard: React.FC = () => {
               Client Management
             </TabsTrigger>
             <TabsTrigger 
+              value="documents" 
+              className="flex items-center gap-2"
+              disabled={!['agency_admin', 'agency_staff'].includes(user?.role || '')}
+            >
+              <FileText className="h-4 w-4" />
+              Documents
+            </TabsTrigger>
+            <TabsTrigger 
               value="chat" 
               className="flex items-center gap-2"
               disabled={!['agency_admin', 'agency_staff'].includes(user?.role || '')}
@@ -74,6 +83,10 @@ export const AgencyDashboard: React.FC = () => {
 
           <TabsContent value="clients">
             <ClientManagement />
+          </TabsContent>
+
+          <TabsContent value="documents">
+            <DocumentManagement />
           </TabsContent>
 
           <TabsContent value="chat">
