@@ -308,6 +308,7 @@ export type Database = {
           client_id: string | null
           created_at: string | null
           document_type: Database["public"]["Enums"]["document_type"]
+          expiry_date: string | null
           file_name: string
           file_path: string
           file_size: number | null
@@ -315,8 +316,13 @@ export type Database = {
           is_verified: boolean | null
           mime_type: string | null
           notes: string | null
+          rejection_reason: string | null
+          tags: string[] | null
           updated_at: string | null
           uploaded_by: string | null
+          verification_status: string | null
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           agency_id: string
@@ -324,6 +330,7 @@ export type Database = {
           client_id?: string | null
           created_at?: string | null
           document_type: Database["public"]["Enums"]["document_type"]
+          expiry_date?: string | null
           file_name: string
           file_path: string
           file_size?: number | null
@@ -331,8 +338,13 @@ export type Database = {
           is_verified?: boolean | null
           mime_type?: string | null
           notes?: string | null
+          rejection_reason?: string | null
+          tags?: string[] | null
           updated_at?: string | null
           uploaded_by?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           agency_id?: string
@@ -340,6 +352,7 @@ export type Database = {
           client_id?: string | null
           created_at?: string | null
           document_type?: Database["public"]["Enums"]["document_type"]
+          expiry_date?: string | null
           file_name?: string
           file_path?: string
           file_size?: number | null
@@ -347,8 +360,13 @@ export type Database = {
           is_verified?: boolean | null
           mime_type?: string | null
           notes?: string | null
+          rejection_reason?: string | null
+          tags?: string[] | null
           updated_at?: string | null
           uploaded_by?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: [
           {
@@ -375,6 +393,73 @@ export type Database = {
           {
             foreignKeyName: "documents_uploaded_by_fkey"
             columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          agency_id: string
+          created_at: string | null
+          data: Json | null
+          email_sent: boolean | null
+          email_sent_at: string | null
+          id: string
+          message: string
+          read_at: string | null
+          title: string
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          agency_id: string
+          created_at?: string | null
+          data?: Json | null
+          email_sent?: boolean | null
+          email_sent_at?: string | null
+          id?: string
+          message: string
+          read_at?: string | null
+          title: string
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          agency_id?: string
+          created_at?: string | null
+          data?: Json | null
+          email_sent?: boolean | null
+          email_sent_at?: string | null
+          id?: string
+          message?: string
+          read_at?: string | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
@@ -430,33 +515,52 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_notification: {
+        Args: {
+          p_user_id: string
+          p_agency_id: string
+          p_type: string
+          p_title: string
+          p_message: string
+          p_data?: Json
+        }
+        Returns: string
+      }
       generate_case_number: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
       get_or_create_conversation: {
-        Args: {
-          client_user_id: string
-        }
+        Args: { client_user_id: string }
+        Returns: string
+      }
+      get_unread_notification_count: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      get_upload_url: {
+        Args: { file_name: string; file_type: string }
         Returns: string
       }
       get_user_agency_id: {
-        Args: {
-          user_id: string
-        }
+        Args: { user_id: string }
         Returns: string
       }
       get_user_role: {
-        Args: {
-          user_id: string
-        }
+        Args: { user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
       }
+      mark_notification_read: {
+        Args: { notification_id: string }
+        Returns: boolean
+      }
       match_faq_response: {
-        Args: {
-          question_text: string
-        }
+        Args: { question_text: string }
         Returns: string
+      }
+      validate_document_upload: {
+        Args: { file_name: string; file_size: number; mime_type: string }
+        Returns: boolean
       }
     }
     Enums: {

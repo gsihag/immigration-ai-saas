@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
