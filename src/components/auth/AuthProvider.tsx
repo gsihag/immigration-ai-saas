@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -107,10 +106,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Set user without profile data
         setUser({
           ...authUser,
-          role: 'agency_admin' as UserRole, // Default role for testing
+          role: 'client' as UserRole, // Default role for testing
           agency_id: 'default-agency',
-          first_name: authUser.user_metadata?.first_name || 'Admin',
-          last_name: authUser.user_metadata?.last_name || 'User',
+          first_name: authUser.user_metadata?.first_name || 'User',
+          last_name: authUser.user_metadata?.last_name || 'Name',
         });
       } else {
         console.log('User profile fetched:', userProfile);
@@ -127,10 +126,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Set user with basic info to prevent infinite loading
       setUser({
         ...authUser,
-        role: 'agency_admin' as UserRole, // Default role for testing
+        role: 'client' as UserRole, // Default role for testing
         agency_id: 'default-agency',
-        first_name: authUser.user_metadata?.first_name || 'Admin',
-        last_name: authUser.user_metadata?.last_name || 'User',
+        first_name: authUser.user_metadata?.first_name || 'User',
+        last_name: authUser.user_metadata?.last_name || 'Name',
       });
     } finally {
       setLoading(false);
