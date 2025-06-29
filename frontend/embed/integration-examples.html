@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immigration AI - Integration Examples</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #1e293b;
+            margin-bottom: 30px;
+        }
+        .example-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .demo-content {
+            min-height: 400px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .config-option {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Immigration AI - Embeddable Components Integration Guide</h1>
+        
+        <div class="example-section">
+            <h2>1. Basic Integration (Login Button + Chat Widget)</h2>
+            <p>Add both the login button and chat widget to your website with minimal configuration:</p>
+            
+            <div class="code-block">
+&lt;!-- Add this before closing &lt;/body&gt; tag --&gt;
+&lt;script&gt;
+  // Configuration for your agency
+  window.ImmigrationAIConfig = {
+    agencyId: 'your-agency-id',
+    portalUrl: 'https://immigration-ai-portal.netlify.app'
+  };
+  
+  window.ImmigrationAIChatConfig = {
+    agencyId: 'your-agency-id',
+    apiUrl: 'https://immigration-ai-portal.netlify.app/api'
+  };
+&lt;/script&gt;
+
+&lt;!-- Load the embeddable components --&gt;
+&lt;script src="https://immigration-ai-portal.netlify.app/embed/embed-login.js"&gt;&lt;/script&gt;
+&lt;script src="https://immigration-ai-portal.netlify.app/embed/embed-chat.js"&gt;&lt;/script&gt;
+            </div>
+        </div>
+
+        <div class="example-section">
+            <h2>2. Advanced Configuration</h2>
+            <p>Customize the appearance and behavior of both components:</p>
+            
+            <div class="code-block">
+&lt;script&gt;
+  // Login Button Configuration
+  window.ImmigrationAIConfig = {
+    agencyId: 'your-agency-id',
+    portalUrl: 'https://immigration-ai-portal.netlify.app',
+    buttonText: 'Client Login',
+    buttonPosition: 'top-right', // top-right, top-left, bottom-right, bottom-left
+    theme: 'light', // light or dark
+    redirectAfterLogin: 'https://yoursite.com/welcome'
+  };
+  
+  // Chat Widget Configuration
+  window.ImmigrationAIChatConfig = {
+    agencyId: 'your-agency-id',
+    apiUrl: 'https://immigration-ai-portal.netlify.app/api',
+    position: 'bottom-right', // bottom-right, bottom-left, top-right, top-left
+    theme: 'light',
+    welcomeMessage: 'Welcome to [Your Agency]! How can I help you today?',
+    enableHumanHandoff: true,
+    businessHours: {
+      enabled: true,
+      timezone: 'America/New_York',
+      schedule: {
+        monday: { start: '09:00', end: '17:00' },
+        tuesday: { start: '09:00', end: '17:00' },
+        wednesday: { start: '09:00', end: '17:00' },
+        thursday: { start: '09:00', end: '17:00' },
+        friday: { start: '09:00', end: '17:00' },
+        saturday: null,
+        sunday: null
+      }
+    }
+  };
+&lt;/script&gt;
+
+&lt;script src="https://immigration-ai-portal.netlify.app/embed/embed-login.js"&gt;&lt;/script&gt;
+&lt;script src="https://immigration-ai-portal.netlify.app/embed/embed-chat.js"&gt;&lt;/script&gt;
+            </div>
+        </div>
+
+        <div class="example-section">
+            <h2>3. Chat Widget Only</h2>
+            <p>If you only want the chat widget without the login button:</p>
+            
+            <div class="code-block">
+&lt;script&gt;
+  window.ImmigrationAIChatConfig = {
+    agencyId: 'your-agency-id',
+    welcomeMessage: 'Hi! I can help answer your immigration questions.',
+    position: 'bottom-right'
+  };
+&lt;/script&gt;
+
+&lt;script src="https://immigration-ai-portal.netlify.app/embed/embed-chat.js"&gt;&lt;/script&gt;
+            </div>
+        </div>
+
+        <div class="example-section">
+            <h2>4. Login Button Only</h2>
+            <p>If you only want the login button without the chat widget:</p>
+            
+            <div class="code-block">
+&lt;script&gt;
+  window.ImmigrationAIConfig = {
+    agencyId: 'your-agency-id',
+    buttonText: 'Client Portal Access',
+    buttonPosition: 'top-right'
+  };
+&lt;/script&gt;
+
+&lt;script src="https://immigration-ai-portal.netlify.app/embed/embed-login.js"&gt;&lt;/script&gt;
+            </div>
+        </div>
+
+        <div class="example-section">
+            <h2>Configuration Options</h2>
+            
+            <h3>Login Button Options (ImmigrationAIConfig)</h3>
+            <div class="config-option">
+                <strong>agencyId</strong> (required): Your unique agency identifier
+            </div>
+            <div class="config-option">
+                <strong>portalUrl</strong>: URL to the client portal (default: our hosted portal)
+            </div>
+            <div class="config-option">
+                <strong>buttonText</strong>: Text displayed on the button (default: "Client Portal")
+            </div>
+            <div class="config-option">
+                <strong>buttonPosition</strong>: Position of the button - top-right, top-left, bottom-right, bottom-left
+            </div>
+            <div class="config-option">
+                <strong>theme</strong>: Visual theme - light or dark
+            </div>
+            <div class="config-option">
+                <strong>redirectAfterLogin</strong>: URL to redirect to after successful login
+            </div>
+
+            <h3>Chat Widget Options (ImmigrationAIChatConfig)</h3>
+            <div class="config-option">
+                <strong>agencyId</strong> (required): Your unique agency identifier
+            </div>
+            <div class="config-option">
+                <strong>position</strong>: Widget position - bottom-right, bottom-left, top-right, top-left
+            </div>
+            <div class="config-option">
+                <strong>welcomeMessage</strong>: First message shown to users
+            </div>
+            <div class="config-option">
+                <strong>enableHumanHandoff</strong>: Allow users to request human support
+            </div>
+            <div class="config-option">
+                <strong>businessHours</strong>: Configure when human support is available
+            </div>
+        </div>
+
+        <div class="example-section">
+            <h2>5. JavaScript API</h2>
+            <p>Control the components programmatically:</p>
+            
+            <div class="code-block">
+// Open the client portal programmatically
+window.ImmigrationAI.openPortal();
+
+// Close the client portal
+window.ImmigrationAI.closePortal();
+
+// Toggle the chat widget
+window.ImmigrationAIChat.toggle();
+
+// Send a message programmatically
+window.ImmigrationAIChat.sendMessage('Hello from the website!', false);
+
+// Show notification on chat button
+window.ImmigrationAIChat.showNotification();
+            </div>
+        </div>
+
+        <!-- Demo area where the widgets will appear -->
+        <div class="demo-content">
+            <div>
+                <h2>Live Demo Area</h2>
+                <p>The login button and chat widget are active on this page!</p>
+                <p>Look for the "Client Portal" button in the top-right corner and the chat icon in the bottom-right.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Example integration -->
+    <script>
+        // Demo configuration
+        window.ImmigrationAIConfig = {
+            agencyId: 'demo-agency-123',
+            portalUrl: 'https://immigration-ai-portal.netlify.app',
+            buttonText: 'Client Portal',
+            buttonPosition: 'top-right',
+            theme: 'light'
+        };
+        
+        window.ImmigrationAIChatConfig = {
+            agencyId: 'demo-agency-123',
+            position: 'bottom-right',
+            welcomeMessage: 'Hello! I\'m here to help with your immigration questions. This is a demo of our embeddable chat widget.',
+            enableHumanHandoff: true
+        };
+    </script>
+
+    <!-- Load the embeddable components -->
+    <script src="embed-login.js"></script>
+    <script src="embed-chat.js"></script>
+</body>
+</html>
