@@ -3,11 +3,12 @@ import React from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { ClientProfile } from './ClientProfile';
-import { ClientDataEntry } from './ClientDataEntry';
+import { ClientDashboardHome } from './ClientDashboardHome';
+import { ClientCase } from './ClientCase';
 import { ClientDocuments } from './ClientDocuments';
+import { ClientEligibilityCheck } from './ClientEligibilityCheck';
 import { ChatContainer } from '@/components/chat/ChatContainer';
-import { User, FileText, Upload } from 'lucide-react';
+import { Home, FileText, Upload, CheckCircle } from 'lucide-react';
 
 export const ClientPortal: React.FC = () => {
   const { user } = useAuth();
@@ -26,43 +27,51 @@ export const ClientPortal: React.FC = () => {
     <>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Client Portal</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Client Dashboard</h1>
           <p className="text-muted-foreground">
-            Manage your profile and immigration information
+            Track your immigration case progress and manage your documents
           </p>
         </div>
 
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              My Profile
+        <Tabs defaultValue="home" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="home" className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              Home
             </TabsTrigger>
-            <TabsTrigger value="data-entry" className="flex items-center gap-2">
+            <TabsTrigger value="case" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
-              Immigration Info
+              My Case
             </TabsTrigger>
             <TabsTrigger value="documents" className="flex items-center gap-2">
               <Upload className="h-4 w-4" />
               Documents
             </TabsTrigger>
+            <TabsTrigger value="eligibility" className="flex items-center gap-2">
+              <CheckCircle className="h-4 w-4" />
+              Eligibility Check
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="profile">
-            <ClientProfile />
+          <TabsContent value="home">
+            <ClientDashboardHome />
           </TabsContent>
 
-          <TabsContent value="data-entry">
-            <ClientDataEntry />
+          <TabsContent value="case">
+            <ClientCase />
           </TabsContent>
 
           <TabsContent value="documents">
             <ClientDocuments />
           </TabsContent>
+
+          <TabsContent value="eligibility">
+            <ClientEligibilityCheck />
+          </TabsContent>
         </Tabs>
       </div>
 
-      {/* Chat Widget */}
+      {/* Always-visible Chat Widget */}
       <ChatContainer />
     </>
   );

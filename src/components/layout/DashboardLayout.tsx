@@ -43,7 +43,8 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
   const isAgencyDashboard = location.pathname === '/agency';
   const isClientPortal = location.pathname === '/client';
   
-  const canAccessAgencyDashboard = user?.agency_id && ['agency_admin', 'agency_staff'].includes(user?.role || '');
+  // Fix the navigation logic - show Agency button for admin and staff roles
+  const canAccessAgencyDashboard = ['agency_admin', 'agency_staff'].includes(user?.role || '');
   const canAccessClientPortal = user?.role === 'client';
 
   return (
