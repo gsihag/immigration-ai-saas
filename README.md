@@ -32,7 +32,13 @@ cd <YOUR_PROJECT_NAME>
 # Step 3: Install the necessary dependencies.
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Copy environment variables
+cp .env.example .env
+
+# Step 5: Update .env with your Supabase credentials
+# Edit .env file and add your actual Supabase URL and anon key
+
+# Step 6: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
@@ -50,6 +56,17 @@ npm run dev
 - Click on "New codespace" to launch a new Codespace environment.
 - Edit files directly within the Codespace and commit and push your changes once you're done.
 
+## Environment Variables
+
+This project uses environment variables for configuration. You need to set up your environment variables before running the application:
+
+1. Copy `.env.example` to `.env`
+2. Update the following required variables in `.env`:
+   - `VITE_SUPABASE_URL`: Your Supabase project URL
+   - `VITE_SUPABASE_ANON_KEY`: Your Supabase anonymous key
+
+You can find these values in your Supabase project dashboard under Settings > API.
+
 ## What technologies are used for this project?
 
 This project is built with:
@@ -59,10 +76,15 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- Supabase (Database & Authentication)
 
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/52164124-0eb1-4ca7-8f53-ba1fc6cfd678) and click on Share -> Publish.
+
+Make sure to set up your environment variables in your deployment platform:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
 
 ## Can I connect a custom domain to my Lovable project?
 
