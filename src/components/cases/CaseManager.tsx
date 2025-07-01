@@ -6,9 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, FileText, Clock, User, MessageSquare } from 'lucide-react';
 
@@ -29,7 +27,7 @@ interface Case {
       last_name: string;
     };
   };
-  assigned_to?: {
+  assigned_user?: {
     first_name: string;
     last_name: string;
   };
@@ -93,7 +91,16 @@ export const CaseManager: React.FC = () => {
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
-      setCases(data || []);
+      
+      // Transform the data to match our interface
+      const transformedCases = (data || []).map(caseItem => ({
+        ...caseItem,
+        client: caseItem.clients,
+        // Handle the assigned_to field properly
+        assigned_user: caseItem.assigned_user || undefined
+      }));
+      
+      setCases(transformedCases);
     } catch (error) {
       console.error('Error fetching cases:', error);
       toast({
@@ -107,6 +114,13 @@ export const CaseManager: React.FC = () => {
   };
 
   const fetchCaseDetails = async (caseId: string) => {
+    // For now, we'll just set empty arrays since the tables might not exist yet
+    // This will be updated once the database migration is complete
+    setActivities([]);
+    setNotes([]);
+    
+    // Placeholder for when the tables are available:
+    /*
     try {
       // Fetch activities
       const { data: activitiesData, error: activitiesError } = await supabase
@@ -136,11 +150,19 @@ export const CaseManager: React.FC = () => {
     } catch (error) {
       console.error('Error fetching case details:', error);
     }
+    */
   };
 
   const addNote = async () => {
     if (!selectedCase || !newNote.trim()) return;
 
+    // Placeholder for when the tables are available
+    toast({
+      title: "Info",
+      description: "Note functionality will be available after database migration is complete",
+    });
+    
+    /*
     try {
       const { error } = await supabase
         .from('case_notes')
@@ -176,15 +198,17 @@ export const CaseManager: React.FC = () => {
         variant: "destructive",
       });
     }
+    */
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'new': return 'bg-blue-100 text-blue-800';
       case 'in_progress': return 'bg-yellow-100 text-yellow-800';
-      case 'review': return 'bg-purple-100 text-purple-800';
+      case 'under_review': return 'bg-purple-100 text-purple-800';
+      case 'approved': return 'bg-green-100 text-green-800';
+      case 'rejected': return 'bg-red-100 text-red-800';
       case 'completed': return 'bg-green-100 text-green-800';
-      case 'on_hold': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -318,22 +342,29 @@ export const CaseManager: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4 max-h-96 overflow-y-auto">
-                      {activities.map((activity) => (
-                        <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
-                          <Clock className="h-4 w-4 mt-1 text-gray-500" />
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">{activity.description}</p>
-                            <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                              <User className="h-3 w-3" />
-                              <span>
-                                {activity.user?.first_name} {activity.user?.last_name}
-                              </span>
-                              <span>•</span>
-                              <span>{new Date(activity.created_at).toLocaleString()}</span>
+                      {activities.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                          <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p>Timeline will be available after database migration</p>
+                        </div>
+                      ) : (
+                        activities.map((activity) => (
+                          <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50">
+                            <Clock className="h-4 w-4 mt-1 text-gray-500" />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">{activity.description}</p>
+                              <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                                <User className="h-3 w-3" />
+                                <span>
+                                  {activity.user?.first_name} {activity.user?.last_name}
+                                </span>
+                                <span>•</span>
+                                <span>{new Date(activity.created_at).toLocaleString()}</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -369,27 +400,34 @@ export const CaseManager: React.FC = () => {
 
                     {/* Notes List */}
                     <div className="space-y-3 max-h-64 overflow-y-auto">
-                      {notes.map((note) => (
-                        <div key={note.id} className="p-3 border rounded-lg">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <MessageSquare className="h-4 w-4 text-gray-500" />
-                              <span className="text-sm font-medium">
-                                {note.author?.first_name} {note.author?.last_name}
-                              </span>
-                              {note.is_private && (
-                                <Badge variant="outline" className="text-xs">
-                                  Private
-                                </Badge>
-                              )}
-                            </div>
-                            <span className="text-xs text-gray-500">
-                              {new Date(note.created_at).toLocaleString()}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-700">{note.content}</p>
+                      {notes.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                          <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p>Notes will be available after database migration</p>
                         </div>
-                      ))}
+                      ) : (
+                        notes.map((note) => (
+                          <div key={note.id} className="p-3 border rounded-lg">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <MessageSquare className="h-4 w-4 text-gray-500" />
+                                <span className="text-sm font-medium">
+                                  {note.author?.first_name} {note.author?.last_name}
+                                </span>
+                                {note.is_private && (
+                                  <Badge variant="outline" className="text-xs">
+                                    Private
+                                  </Badge>
+                                )}
+                              </div>
+                              <span className="text-xs text-gray-500">
+                                {new Date(note.created_at).toLocaleString()}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-700">{note.content}</p>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </CardContent>
                 </Card>
