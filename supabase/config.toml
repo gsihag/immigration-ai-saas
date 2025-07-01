@@ -1,1 +1,27 @@
+
 project_id = "kwubrzqtcahbwnztjtcr"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[auth]
+enabled = true
+port = 54322
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://kwubrzqtcahbwnztjtcr.supabase.co"]
+
+[storage]
+enabled = true
+port = 54323
+file_size_limit = "50MiB"
+
+[edge_runtime]
+enabled = true
+port = 54324
+
+[functions.gemini-chat]
+verify_jwt = false

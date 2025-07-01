@@ -1,71 +1,33 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "@/components/auth/AuthProvider";
-import { AuthPage } from "@/components/auth/AuthPage";
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Dashboard } from "@/components/dashboard/Dashboard";
-import { AgencyDashboard } from "@/components/agency/AgencyDashboard";
-import { ClientPortal } from "@/components/client/ClientPortal";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./components/auth/AuthProvider";
+import { AuthPage } from "./components/auth/AuthPage";
+import { Dashboard } from "./components/dashboard/Dashboard";
+import { GeminiChatContainer } from "./components/chat/GeminiChatContainer";
+import "./App.css";
 
 const queryClient = new QueryClient();
 
-const AppContent = () => {
-  const { user, loading } = useAuth();
-
-  console.log('App loading state:', loading);
-  console.log('Current user:', user?.email, user?.role);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <AuthPage />;
-  }
-
+function App() {
   return (
-    <DashboardLayout>
-      <Routes>
-        <Route 
-          path="/" 
-          element={
-            // Redirect admin users to agency dashboard by default
-            user.role === 'agency_admin' || user.role === 'agency_staff' ? 
-              <Navigate to="/agency" replace /> : 
-              <Dashboard />
-          } 
-        />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/agency" element={<AgencyDashboard />} />
-        <Route path="/client" element={<ClientPortal />} />
-      </Routes>
-    </DashboardLayout>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/*" element={<Dashboard />} />
+            </Routes>
+            <GeminiChatContainer />
+            <Toaster />
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
-};
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+}
 
 export default App;
