@@ -70,14 +70,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     getInitialSession();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', event, session?.user?.email);
       
       if (!mounted) return;
       
       setSession(session);
       if (session?.user) {
-        await fetchUserProfile(session.user);
+        // Set user immediately for faster loading, then fetch profile in background
+        setUser({
+          ...session.user,
+          role: 'client' as UserRole,
+          agency_id: 'default-agency',
+          first_name: session.user.user_metadata?.first_name || 'User',
+          last_name: session.user.user_metadata?.last_name || 'Name',
+        });
+        setLoading(false);
+        
+        // Fetch full profile in background
+        setTimeout(() => {
+          fetchUserProfile(session.user);
+        }, 0);
       } else {
         setUser(null);
         setLoading(false);
