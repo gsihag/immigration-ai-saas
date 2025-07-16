@@ -64,8 +64,10 @@ serve(async (req) => {
 
     Respond in a friendly, professional manner. Keep responses concise but informative.`;
 
-    // Call Gemini API
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`, {
+    console.log('Making request to Gemini API...');
+    
+    // Call Gemini API with correct endpoint
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -85,14 +87,21 @@ serve(async (req) => {
       }),
     });
 
+    console.log('Gemini API response status:', response.status);
+    
     if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('Gemini API error response:', errorText);
+      throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
+    console.log('Gemini API response received successfully');
+    
     const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!aiResponse) {
+      console.error('No response text in Gemini API response:', JSON.stringify(data));
       throw new Error('No response from Gemini AI');
     }
 
